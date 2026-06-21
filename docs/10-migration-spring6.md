@@ -244,6 +244,62 @@ that flag, Spring cannot resolve the parameter name and throws at the first HTTP
 the root `pom.xml`. One line; no changes to any `@RequestParam` or `@PathVariable` annotation
 needed.
 
+### G-10 · Transaction manager changed: `HibernateTransactionManager` → `JpaTransactionManager`
+
+**This is a real architectural change, not a rename.**
+
+**Before (Spring 5 / Hibernate 5):**
+```java
+@Bean
+public LocalSessionFactoryBean sessionFactory(DataSource dataSource) { ... }
+
+@Bean
+public HibernateTransactionManager transactionManager(SessionFactory sf) {
+    return new HibernateTransactionManager(sf);
+}
+```
+`HibernateTransactionManager` bound a Hibernate `Session` directly to Spring's
+`TransactionSynchronizationManager`. DAOs called `sessionFactory.getCurrentSession()`,
+which returned the Session registered by the transaction manager for the current thread.
+
+**After (Spring 6 / Hibernate 6):**
+```java
+@Bean
+public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) { ... }
+
+@Bean
+public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+    return new JpaTransactionManager(emf);
+}
+```
+`JpaTransactionManager` manages a JPA `EntityManager` (whose implementation is a Hibernate
+`Session`). DAOs inject a Spring-managed `EntityManager` proxy via `@PersistenceContext`
+and call `entityManager.unwrap(Session.class)` when they need the native Hibernate API.
+
+**Why the change was forced:** Spring 6 removed `org.springframework.orm.hibernate5`
+entirely (see G-6) and did not ship a `hibernate6` replacement. `JpaTransactionManager`
+is the only Spring-provided transaction manager for Hibernate 6.
+
+**Why application behaviour is preserved:**
+- `@Transactional` AOP interception works identically — `JpaTransactionManager` opens an
+  `EntityManager`, binds it to the thread, and commits/rolls back on method exit.
+- Dirty checking still fires on commit: `JpaTransactionManager` calls `em.flush()` before
+  commit, which triggers Hibernate's dirty-detection and issues UPDATE SQL for any modified
+  managed entities. `ProfileServiceImpl.update()` and `BookingServiceImpl.cancel()` both
+  rely on this and continue to work unchanged.
+- `@Transactional(readOnly = true)` still sets flush mode to NEVER, preventing accidental
+  writes in read-only service methods.
+- `PROPAGATION_REQUIRES_NEW` via `TransactionTemplate` (used in `BookingServiceImpl.reserve()`)
+  still works: `JpaTransactionManager` suspends the outer `EntityManager` binding, opens a
+  new one for the inner transaction, then restores the outer binding.
+- `@PersistenceContext EntityManager` is a Spring proxy: within any `@Transactional` scope
+  it transparently delegates to the transaction-bound `EntityManager`, so `entityManager.unwrap(Session.class)`
+  always returns the correct session for the current thread and transaction.
+
+**Net result:** the persistence infrastructure changed (Session API → JPA + Session unwrap),
+but every transactional guarantee the application relies on — dirty checking, read-only hint,
+REQUIRES_NEW suspension — is provided by `JpaTransactionManager` with identical semantics.
+
 ---
 
 ## Rollback & schema-versioning strategy

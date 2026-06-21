@@ -21,11 +21,11 @@ All 9 development phases are complete on `main`. A Spring 6 / Hibernate 6 migrat
 
 **In progress (on `feature/spring6-hibernate6`):**
 - Step 0+1 (merged commit `625b642`): Spring 5→6, Hibernate 5→6, `javax.*`→`jakarta.*` sweep — **DONE, build passes**
-- Step 2: Spring 6 API adaptations — pending
-- Step 3: Hibernate 6 query API — pending
+- Step 2 (commit `b3fc89b`): Spring 6 API adaptations (`-parameters` flag) — **DONE**
+- Step 3 (commit `79341be`): Hibernate 6 query API — **DONE (no code changes required)**
 - Step 4: Tomcat 10 (Docker image, `web.xml` namespace, Cargo plugin) — pending
 
-See `docs/10-migration-spring6.md` for the full migration log (step details + gotchas G-1 through G-8).
+See `docs/10-migration-spring6.md` for the full migration log (step details + gotchas G-1 through G-10).
 
 ---
 
@@ -231,8 +231,8 @@ Branch `feature/spring6-hibernate6` (baseline tagged `v1.0-spring5-hibernate5`).
 | Step | Description | Commit | Status |
 |------|-------------|--------|--------|
 | 0+1 | POM bumps + `javax.*`→`jakarta.*` sweep | `625b642` | **DONE — build passes** |
-| 2 | Spring 6 API adaptations | — | pending |
-| 3 | Hibernate 6 query API | — | pending |
+| 2 | Spring 6 API adaptations (`-parameters` flag) | `b3fc89b` | **DONE** |
+| 3 | Hibernate 6 query API | `79341be` | **DONE — no code changes** |
 | 4 | Tomcat 10 (Docker, `web.xml`, Cargo) | — | pending |
 
 **Key decisions made in Step 0+1:**
