@@ -33,7 +33,7 @@ Steps 2, 3, and 4 remain as separate focused commits.
 
 ## Step 0+1 — POM bumps + `javax.*` → `jakarta.*` sweep (merged)
 
-**Commit:** `<!-- hash -->`
+**Commit:** `625b642`
 
 ### What changed
 
