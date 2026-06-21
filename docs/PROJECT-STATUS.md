@@ -7,8 +7,8 @@
 
 ## 1. Current State
 
-All 9 development phases are complete on `main`. A Spring 6 / Hibernate 6 migration is
-**in progress** on branch `feature/spring6-hibernate6` (Step 0+1 committed; Steps 2–4 pending).
+All 9 development phases are complete on `main`. The Spring 6 / Hibernate 6 migration is
+**complete** — merged from `feature/spring6-hibernate6`, tagged `v2.0-spring6-hibernate6`.
 
 **Completed (on `main`):**
 - Phases 1–9 implemented (domain model, Sabre GDS integration, persistence, services, REST API,
@@ -18,12 +18,14 @@ All 9 development phases are complete on `main`. A Spring 6 / Hibernate 6 migrat
 - Reports screen: on-screen tables, Apply/Clear date filter, CSV/Excel downloads (see `docs/07-reporting.md`)
 - Git repository initialized, `.gitignore` configured, pushed to GitHub:
   **https://github.com/carranza-javier/mini-midoffice** (public, branch `main`)
+- Spring 6.1.14 / Hibernate 6.4.4.Final / Tomcat 10.1 / Jakarta EE 10 migration complete
+  (tagged `v2.0-spring6-hibernate6`; original stack preserved at `v1.0-spring5-hibernate5`)
 
-**In progress (on `feature/spring6-hibernate6`):**
-- Step 0+1 (merged commit `625b642`): Spring 5→6, Hibernate 5→6, `javax.*`→`jakarta.*` sweep — **DONE, build passes**
-- Step 2 (commit `b3fc89b`): Spring 6 API adaptations (`-parameters` flag) — **DONE**
-- Step 3 (commit `79341be`): Hibernate 6 query API — **DONE (no code changes required)**
-- Step 4: Tomcat 10 (Docker image, `web.xml` namespace, Cargo plugin) — **DONE, smoke test passed**
+**Migration steps (all done, merged into main):**
+- Step 0+1 (`625b642`): Spring 5→6, Hibernate 5→6, `javax.*`→`jakarta.*` sweep
+- Step 2 (`b3fc89b`): `-parameters` compiler flag for Spring 6 parameter name resolution
+- Step 3 (`79341be`): Hibernate 6 query API review (no code changes required)
+- Step 4 (`bc7ec79`): Tomcat 10 (`web.xml` Jakarta namespace, Docker image, Cargo plugin)
 
 See `docs/10-migration-spring6.md` for the full migration log (step details + gotchas G-1 through G-10).
 
@@ -35,14 +37,15 @@ A portfolio application modelling a travel-agency mid-office system: booking man
 GDS integrations (Sabre sandbox), and ad-hoc SQL reporting. Built to demonstrate senior
 Java backend skills on a realistic, production-representative stack.
 
-**Stack (`main`):** Java 17, Spring Framework 5.3 (no Spring Boot — explicit Root/Web context
-separation), Hibernate 5.6, PostgreSQL 16 (HikariCP pool), Maven multi-module WAR deployed on
-Tomcat 9, jQuery + Handlebars + Bootstrap 3 SPA frontend, Apache POI for Excel export, Sabre
-GDS REST sandbox integration (OAuth2, BFM flight search + flight check + booking reserve).
+**Stack (`main`, `v2.0-spring6-hibernate6`):** Java 17, Spring Framework 6.1.14 (no Spring Boot —
+explicit Root/Web context separation), Hibernate 6.4.4.Final, Jakarta EE 10 (`jakarta.*`),
+JPA-based persistence config (`LocalContainerEntityManagerFactoryBean` + `JpaTransactionManager`),
+PostgreSQL 16 (HikariCP pool), Maven multi-module WAR deployed on Tomcat 10.1, jQuery +
+Handlebars + Bootstrap 3 SPA frontend, Apache POI for Excel export, Sabre GDS REST sandbox
+integration (OAuth2, BFM flight search + flight check + booking reserve).
 
-**Stack (`feature/spring6-hibernate6`, Step 0+1 done):** Spring 6.1.14, Hibernate 6.4.4.Final,
-Jakarta EE 10 (`jakarta.*`), JPA-based persistence config (`LocalContainerEntityManagerFactoryBean`
-+ `JpaTransactionManager`). Tomcat still on 9 until Step 4.
+**Legacy stack (`v1.0-spring5-hibernate5`):** Spring 5.3.39, Hibernate 5.6.15.Final,
+`javax.*`, `LocalSessionFactoryBean` + `HibernateTransactionManager`, Tomcat 9.
 
 ---
 
@@ -224,18 +227,19 @@ Or set it repo-locally only (omit `--global`) if the machine is shared.
 
 ---
 
-### 6b. Spring 6 / Hibernate 6 Migration — IN PROGRESS
+### 6b. Spring 6 / Hibernate 6 Migration — COMPLETE
 
-Branch `feature/spring6-hibernate6` (baseline tagged `v1.0-spring5-hibernate5`).
+Merged from `feature/spring6-hibernate6` into `main`. Tagged `v2.0-spring6-hibernate6`.
+Baseline preserved at `v1.0-spring5-hibernate5`.
 
 | Step | Description | Commit | Status |
 |------|-------------|--------|--------|
-| 0+1 | POM bumps + `javax.*`→`jakarta.*` sweep | `625b642` | **DONE — build passes** |
+| 0+1 | POM bumps + `javax.*`→`jakarta.*` sweep | `625b642` | **DONE** |
 | 2 | Spring 6 API adaptations (`-parameters` flag) | `b3fc89b` | **DONE** |
 | 3 | Hibernate 6 query API | `79341be` | **DONE — no code changes** |
-| 4 | Tomcat 10 (Docker, `web.xml`, Cargo) | `bc7ec79` | **DONE — smoke test passed** |
+| 4 | Tomcat 10 (Docker, `web.xml`, Cargo) | `bc7ec79` | **DONE** |
 
-**Key decisions made in Step 0+1:**
+**Key decisions (see `docs/10-migration-spring6.md` for full detail and gotchas G-1 through G-10):**
 - Spring 6 has no `org.springframework.orm.hibernate6` package — dropped `LocalSessionFactoryBean`
   and `HibernateTransactionManager`, replaced with `LocalContainerEntityManagerFactoryBean` +
   `JpaTransactionManager` + `HibernateJpaVendorAdapter`.
@@ -244,10 +248,7 @@ Branch `feature/spring6-hibernate6` (baseline tagged `v1.0-spring5-hibernate5`).
 - `session.save/update/delete` → `persist/merge/remove` (removed in Hibernate 6).
 - `PostgreSQL95Dialect` → `PostgreSQLDialect` (removed in Hibernate 6).
 - `org.hibernate:hibernate-core` → `org.hibernate.orm:hibernate-core` (groupId relocated).
-
-See `docs/10-migration-spring6.md` for the full migration log with all gotchas documented.
-
-After all steps pass, tag: `git tag v2.0-spring6-hibernate6`
+- End-to-end smoke test (reserve flow + reports) verified on `tomcat:10.1-jdk17`.
 
 ---
 
