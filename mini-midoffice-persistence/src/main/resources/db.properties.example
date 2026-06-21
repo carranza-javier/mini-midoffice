@@ -1,0 +1,8 @@
+# JCarranza Mini-Midoffice — Database configuration
+# Copy this file to db.properties and fill in your own values.
+# db.properties is git-ignored and must NEVER be committed.
+
+db.url=jdbc:postgresql://localhost:5432/YOUR_DB_NAME_HERE
+db.username=YOUR_DB_USERNAME_HERE
+db.password=YOUR_DB_PASSWORD_HERE
+db.pool.maxSize=10

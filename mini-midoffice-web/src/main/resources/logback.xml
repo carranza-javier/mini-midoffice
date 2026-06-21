@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!--
+        Logback — JCarranza Mini-Midoffice (Phase 8)
+
+        Three separate log categories, designed for manual review on Linux by 2nd-level support:
+          business.log          — business events (profiles, searches, bookings)
+          sabre-integration.log — outbound Sabre calls (endpoint, duration, errors)
+          errors.log            — unhandled exceptions that reach the @ControllerAdvice (500)
+
+        MDC: each HTTP request carries a unique requestId injected by RequestIdFilter.
+        Grepping: grep "requestId=a3f7b2c1" logs/*.log shows the complete trace of a request.
+    -->
+
+    <property name="LOG_DIR"     value="${catalina.base:-/tmp}/logs/mini-midoffice"/>
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId:-no-rid}] %logger{36} - %msg%n"/>
+
+    <!-- ================================================================
+         Appender: Console (useful during development and when reading docker logs)
+         ================================================================ -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ================================================================
+         Appender: business.log — business events (minimum INFO level)
+         Daily rotation, 30-day retention, maximum 50 MB per file.
+         ================================================================ -->
+    <appender name="BUSINESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/business.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/business.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <!-- INFO and above only in the business log -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- ================================================================
+         Appender: sabre-integration.log — GDS outbound calls
+         INFO for normal calls, WARN for Sabre business errors,
+         ERROR for network failures. Daily rotation, 60-day retention.
+         ================================================================ -->
+    <appender name="SABRE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/sabre-integration.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/sabre-integration.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ================================================================
+         Appender: errors.log — unhandled exceptions (500s only)
+         Full stack trace. 90-day retention.
+         ================================================================ -->
+    <appender name="ERRORS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/errors.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/errors.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>90</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <!-- ================================================================
+         Named loggers — three business categories
+         additivity=false: no duplication to the root appender
+         ================================================================ -->
+
+    <!-- Business events: profile creation, searches, bookings, cancellations -->
+    <logger name="com.jcarranza.minimidoffice.business" level="INFO" additivity="false">
+        <appender-ref ref="BUSINESS_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- Sabre integration layer: all adapters and SabreHttpClient -->
+    <logger name="com.jcarranza.minimidoffice.integration.sabre" level="INFO" additivity="false">
+        <appender-ref ref="SABRE_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- Unhandled exceptions (500s): only GlobalExceptionHandler writes here -->
+    <logger name="com.jcarranza.minimidoffice.errors" level="ERROR" additivity="false">
+        <appender-ref ref="ERRORS_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- ================================================================
+         Root logger — everything else (Spring, Hibernate, HikariCP, etc.)
+         Console only at INFO. Avoids writing framework noise to disk.
+         ================================================================ -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!-- Silence verbose framework loggers that add no value for support -->
+    <logger name="org.hibernate"            level="WARN"/>
+    <logger name="com.zaxxer.hikari"        level="WARN"/>
+    <logger name="org.springframework"      level="WARN"/>
+    <logger name="org.apache.hc"            level="WARN"/>
+
+</configuration>

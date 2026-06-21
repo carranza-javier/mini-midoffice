@@ -1,0 +1,62 @@
+# ---------------------------------------------------------------
+# Maven build output (all modules)
+# ---------------------------------------------------------------
+target/
+**/target/
+
+# ---------------------------------------------------------------
+# Compiled / packaged artifacts
+# ---------------------------------------------------------------
+*.war
+*.jar
+
+# ---------------------------------------------------------------
+# IDE — IntelliJ IDEA / VS Code / Eclipse
+# ---------------------------------------------------------------
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# ---------------------------------------------------------------
+# Credentials — never commit the real files; commit only *.example
+# sabre.properties  → contains Sabre DEVCENTER clientId + clientSecret
+# db.properties     → contains DB username + password
+# ---------------------------------------------------------------
+**/sabre.properties
+**/db.properties
+
+# ---------------------------------------------------------------
+# Maven wrapper (not used in this project, but kept for safety)
+# ---------------------------------------------------------------
+.mvn/
+mvnw
+mvnw.cmd
+
+# ---------------------------------------------------------------
+# Logs
+# ---------------------------------------------------------------
+*.log
+logs/
+
+# ---------------------------------------------------------------
+# Loose test / debug / report export files at the project root
+# ---------------------------------------------------------------
+/sabre-dump.json
+/sabre-raw.json
+/sabre-raw.txt
+/by-destination.csv
+/by-destination.xlsx
+/by-provider.csv
+/by-month.csv
+# Catch any future report exports dropped at root level
+/*.csv
+/*.xlsx
+
+# ---------------------------------------------------------------
+# OS junk
+# ---------------------------------------------------------------
+.DS_Store
+Thumbs.db

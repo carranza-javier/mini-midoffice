@@ -1,0 +1,99 @@
+/* =========================================================
+   JCarranza Mini-Midoffice — custom styles (Bootstrap 3 base)
+   ========================================================= */
+
+/* Navbar — dark theme */
+.navbar-default {
+    background-color: #2c3e50;
+    border-color: #1a252f;
+}
+.navbar-default .navbar-brand,
+.navbar-default .navbar-nav > li > a {
+    color: #bdc3c7;
+}
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #ffffff;
+    background-color: #34495e;
+}
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+    background-color: #16a085;
+    color: #ffffff;
+}
+.navbar-default .navbar-toggle {
+    border-color: #455a64;
+}
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #bdc3c7;
+}
+
+/* Main content below fixed navbar */
+.mu-content {
+    margin-top: 70px;
+    padding: 0 20px 40px;
+}
+
+/* Large stat numbers on dashboard */
+.mu-stat {
+    font-size: 3rem;
+    font-weight: 300;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Page headers */
+.page-header {
+    margin-top: 0;
+    border-bottom-color: #e8e8e8;
+}
+
+/* Vertically center table cells */
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+/* Compact flight key in bookings table */
+.mu-flightkey {
+    font-size: 10px;
+    word-break: break-all;
+    white-space: normal;
+    max-width: 220px;
+    display: inline-block;
+}
+
+/* Booking detail pre block */
+.mu-pre-key {
+    font-size: 11px;
+    word-break: break-all;
+    white-space: pre-wrap;
+    background: #f8f8f8;
+    border: 1px solid #e0e0e0;
+    padding: 6px 10px;
+    border-radius: 3px;
+}
+
+/* Loading spinner */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.spinning {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+/* Input uppercase helper */
+.input-uppercase {
+    text-transform: uppercase;
+}
+.input-uppercase::placeholder {
+    text-transform: none;
+}
+
+/* Alert container spacing */
+#alert-container {
+    margin-bottom: 10px;
+}

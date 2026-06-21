@@ -1,0 +1,19 @@
+# JCarranza Mini-Midoffice — Sabre API configuration
+# Copy this file to sabre.properties and fill in your own values.
+# sabre.properties is git-ignored and must NEVER be committed.
+
+# Environment: cert (sandbox) or production
+sabre.baseUrl=https://api.cert.platform.sabre.com
+sabre.tokenUrl=https://api.cert.platform.sabre.com/v2/auth/token
+
+# DEVCENTER credentials — obtain from https://developer.sabre.com/my-account/applications
+# Format: V1:<client_id>:DEVCENTER:EXT
+sabre.clientId=YOUR_CLIENT_ID_HERE
+sabre.clientSecret=YOUR_CLIENT_SECRET_HERE
+
+# PseudoCityCode required by Flight Check in cert. PC18 works with DEVCENTER.
+sabre.pseudoCityCode=PC18
+
+# HTTP timeouts (seconds)
+sabre.connectTimeoutSeconds=5
+sabre.readTimeoutSeconds=30
