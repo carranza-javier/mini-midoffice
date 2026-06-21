@@ -23,7 +23,7 @@ All 9 development phases are complete on `main`. A Spring 6 / Hibernate 6 migrat
 - Step 0+1 (merged commit `625b642`): Spring 5→6, Hibernate 5→6, `javax.*`→`jakarta.*` sweep — **DONE, build passes**
 - Step 2 (commit `b3fc89b`): Spring 6 API adaptations (`-parameters` flag) — **DONE**
 - Step 3 (commit `79341be`): Hibernate 6 query API — **DONE (no code changes required)**
-- Step 4: Tomcat 10 (Docker image, `web.xml` namespace, Cargo plugin) — pending
+- Step 4: Tomcat 10 (Docker image, `web.xml` namespace, Cargo plugin) — **DONE, smoke test passed**
 
 See `docs/10-migration-spring6.md` for the full migration log (step details + gotchas G-1 through G-10).
 
@@ -139,7 +139,7 @@ Output: `mini-midoffice-web/target/mini-midoffice-web-1.0.0-SNAPSHOT.war`
 docker run -d --name mini-midoffice-app -p 8080:8080 `
   -e JAVA_OPTS="-Ddb.url=jdbc:postgresql://host.docker.internal:5432/miniumbrella -Ddb.username=postgres -Ddb.password=miniumbrella" `
   -v "C:/workspace/mini-midoffice/mini-midoffice-web/target/mini-midoffice-web-1.0.0-SNAPSHOT.war:/usr/local/tomcat/webapps/ROOT.war:ro" `
-  tomcat:9.0-jdk17
+  tomcat:10.1-jdk17
 ```
 
 Wait ~10 s, then: `docker logs mini-midoffice-app --tail 5` — should end with
@@ -233,7 +233,7 @@ Branch `feature/spring6-hibernate6` (baseline tagged `v1.0-spring5-hibernate5`).
 | 0+1 | POM bumps + `javax.*`→`jakarta.*` sweep | `625b642` | **DONE — build passes** |
 | 2 | Spring 6 API adaptations (`-parameters` flag) | `b3fc89b` | **DONE** |
 | 3 | Hibernate 6 query API | `79341be` | **DONE — no code changes** |
-| 4 | Tomcat 10 (Docker, `web.xml`, Cargo) | — | pending |
+| 4 | Tomcat 10 (Docker, `web.xml`, Cargo) | `<!-- hash -->` | **DONE — smoke test passed** |
 
 **Key decisions made in Step 0+1:**
 - Spring 6 has no `org.springframework.orm.hibernate6` package — dropped `LocalSessionFactoryBean`

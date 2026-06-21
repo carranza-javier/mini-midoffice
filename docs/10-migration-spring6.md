@@ -154,7 +154,47 @@ Hibernate 6-compatible style. Specific findings:
 
 **Commit:** `<!-- hash -->`
 
-> *(To be filled.)*
+### What changed
+
+**`mini-midoffice-web/src/main/webapp/WEB-INF/web.xml`:**
+
+```xml
+<!-- Before (Servlet 4.0 / javaee) -->
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                             http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+
+<!-- After (Servlet 6.0 / jakartaee) -->
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+```
+
+**`mini-midoffice-web/pom.xml`** (Cargo plugin — dev workflow):
+- `<containerId>tomcat9x</containerId>` → `<containerId>tomcat10x</containerId>`
+- Download URL updated to Apache Tomcat 10.1.28
+
+**`HOW-TO-RUN.md`** (Docker run command):
+- `tomcat:9.0-jdk17` → `tomcat:10.1-jdk17`
+
+### Smoke test results (Tomcat 10.1-jdk17)
+
+Deployed `mini-midoffice-web-1.0.0-SNAPSHOT.war` on `tomcat:10.1-jdk17`.
+Startup time: **12,372 ms**.
+
+```
+POST /api/profiles → 201 Created
+{"id":1,"firstName":"Ana","lastName":"Garcia","email":"ana@corp.com",
+ "company":"Iberia","createdAt":"2026-06-21T13:45:25.863...","fullName":"Ana Garcia"}
+
+GET /api/flights/search?origin=JFK&fromDate=2026-07-17&toDate=2026-07-20
+    &passengerCount=1&currencyCode=USD → 200 OK (130 KB — full Sabre BFM result set)
+```
+
+All Jakarta EE namespaces, Spring 6 / Hibernate 6, and JPA transaction management
+confirmed working end-to-end on Tomcat 10.1.
 
 ---
 

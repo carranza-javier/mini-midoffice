@@ -41,7 +41,7 @@ Output WAR: `mini-midoffice-web/target/mini-midoffice-web-1.0.0-SNAPSHOT.war`
 docker run -d --name mini-midoffice-app -p 8080:8080 `
   -e JAVA_OPTS="-Ddb.url=jdbc:postgresql://host.docker.internal:5432/miniumbrella -Ddb.username=postgres -Ddb.password=miniumbrella" `
   -v "C:/workspace/mini-midoffice/mini-midoffice-web/target/mini-midoffice-web-1.0.0-SNAPSHOT.war:/usr/local/tomcat/webapps/ROOT.war:ro" `
-  tomcat:9.0-jdk17
+  tomcat:10.1-jdk17
 ```
 
 `host.docker.internal` resolves to the host machine — this is how the Tomcat container reaches the PostgreSQL container exposed on `localhost:5432`.
