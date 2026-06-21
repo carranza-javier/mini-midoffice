@@ -103,7 +103,7 @@ The fix is a single compiler flag rather than adding `value = "name"` to every a
 
 ## Step 3 — Hibernate 6 query API
 
-**Commit:** `<!-- hash -->`
+**Commit:** `79341be`
 
 ### Result: no code changes required
 
