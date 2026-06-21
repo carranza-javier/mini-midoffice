@@ -70,7 +70,34 @@ Steps 2, 3, and 4 remain as separate focused commits.
 
 **Commit:** `<!-- hash -->`
 
-> *(To be filled.)*
+### What changed
+
+**`pom.xml` (root) — maven-compiler-plugin:**
+- Added `<parameters>true</parameters>` to the compiler plugin configuration.
+
+### Why
+
+Spring 6.1 removed `LocalVariableTableParameterNameDiscoverer`, which previously read
+method parameter names from bytecode debug symbols (`-g` compiler flag). Spring 6 now
+uses `StandardReflectionParameterNameDiscoverer`, which requires the `-parameters` javac
+flag to preserve parameter names in bytecode.
+
+Without this flag, every controller method that uses `@RequestParam` or `@PathVariable`
+without an explicit `value` attribute fails at runtime:
+
+```
+java.lang.IllegalArgumentException: Name for argument of type [int] not specified,
+and parameter name information not available via reflection. Ensure that the compiler
+uses the '-parameters' flag.
+```
+
+Affected methods in this project (all four controllers have unannotated-value params):
+- `ProfileController`: `offset`, `limit`, `q`, `id`
+- `BookingController`: `travellerId`, `id`
+- `FlightController`: `origin`, `destination`, `fromDate`, `toDate`, `lengthOfStay`, `passengerCount`, `currencyCode`
+- `ReportController`: `from`, `to`, `format`
+
+The fix is a single compiler flag rather than adding `value = "name"` to every annotation.
 
 ---
 
