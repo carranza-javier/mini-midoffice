@@ -7,23 +7,25 @@
 
 ## 1. Current State
 
-All 9 development phases are complete, the build passes (`mvn clean package -DskipTests`),
-and the project has a clean Git history on GitHub.
+All 9 development phases are complete on `main`. A Spring 6 / Hibernate 6 migration is
+**in progress** on branch `feature/spring6-hibernate6` (Step 0+1 committed; Steps 2–4 pending).
 
-**What has been done:**
+**Completed (on `main`):**
 - Phases 1–9 implemented (domain model, Sabre GDS integration, persistence, services, REST API,
   Bootstrap/jQuery/Handlebars SPA frontend, CSV/Excel reporting, Logback observability with MDC,
   support simulation documentation)
-- All source files translated from Spanish to English (comments, Javadocs, XML comments, docs prose)
-- Naming is consistent throughout: `JCarranza Mini-Midoffice` in all user-visible text,
-  `com.jcarranza.minimidoffice` for Java packages, `com.jcarranza` as Maven groupId
-- Reports screen completed: on-screen tables populated via JSON endpoint, Apply/Clear date
-  filter wired, CSV/Excel downloads respect the active date range (see `docs/07-reporting.md`)
-- Git repository initialized, `.gitignore` configured, initial commit made, pushed to GitHub:
+- All source files in English; naming consistent: `JCarranza Mini-Midoffice` everywhere
+- Reports screen: on-screen tables, Apply/Clear date filter, CSV/Excel downloads (see `docs/07-reporting.md`)
+- Git repository initialized, `.gitignore` configured, pushed to GitHub:
   **https://github.com/carranza-javier/mini-midoffice** (public, branch `main`)
 
-**Next milestone:**
-- Spring 6 / Hibernate 6 migration on a feature branch (see Section 6b)
+**In progress (on `feature/spring6-hibernate6`):**
+- Step 0+1 (merged commit `625b642`): Spring 5→6, Hibernate 5→6, `javax.*`→`jakarta.*` sweep — **DONE, build passes**
+- Step 2: Spring 6 API adaptations — pending
+- Step 3: Hibernate 6 query API — pending
+- Step 4: Tomcat 10 (Docker image, `web.xml` namespace, Cargo plugin) — pending
+
+See `docs/10-migration-spring6.md` for the full migration log (step details + gotchas G-1 through G-8).
 
 ---
 
@@ -33,10 +35,14 @@ A portfolio application modelling a travel-agency mid-office system: booking man
 GDS integrations (Sabre sandbox), and ad-hoc SQL reporting. Built to demonstrate senior
 Java backend skills on a realistic, production-representative stack.
 
-**Stack:** Java 17, Spring Framework 5.3 (no Spring Boot — explicit Root/Web context
+**Stack (`main`):** Java 17, Spring Framework 5.3 (no Spring Boot — explicit Root/Web context
 separation), Hibernate 5.6, PostgreSQL 16 (HikariCP pool), Maven multi-module WAR deployed on
 Tomcat 9, jQuery + Handlebars + Bootstrap 3 SPA frontend, Apache POI for Excel export, Sabre
 GDS REST sandbox integration (OAuth2, BFM flight search + flight check + booking reserve).
+
+**Stack (`feature/spring6-hibernate6`, Step 0+1 done):** Spring 6.1.14, Hibernate 6.4.4.Final,
+Jakarta EE 10 (`jakarta.*`), JPA-based persistence config (`LocalContainerEntityManagerFactoryBean`
++ `JpaTransactionManager`). Tomcat still on 9 until Step 4.
 
 ---
 
@@ -54,14 +60,18 @@ GDS REST sandbox integration (OAuth2, BFM flight search + flight check + booking
 
 ### Spring Context Setup
 
-Two-context pattern (mandatory for `@Transactional` via `HibernateTransactionManager` to work):
+Two-context pattern (mandatory for `@Transactional` to intercept correctly):
 
 - **Root Context** — loaded by `ContextLoaderListener` (web.xml). Config class: `AppConfig`.
-  Contains: services, DAOs, Hibernate `SessionFactory`, HikariCP `DataSource`, Sabre beans.
+  Contains: services, DAOs, JPA `EntityManagerFactory`, HikariCP `DataSource`, Sabre beans.
   Imports `PersistenceConfig` and `IntegrationConfig`.
 - **Web Context** — loaded by `DispatcherServlet` mapped to `/api/*`. Config class:
   `WebMvcConfig`. Contains: controllers, `@ControllerAdvice`. Inherits all Root beans.
 - Static resources and `index.html` served by Tomcat `DefaultServlet` (not DispatcherServlet).
+
+> **`main` vs migration branch:** on `main` the root context uses `LocalSessionFactoryBean` +
+> `HibernateTransactionManager`. On `feature/spring6-hibernate6` (after Step 0+1) it uses
+> `LocalContainerEntityManagerFactoryBean` + `JpaTransactionManager`.
 
 ### GDS Integration Pattern (Anti-Corruption Layer)
 
@@ -214,30 +224,30 @@ Or set it repo-locally only (omit `--global`) if the machine is shared.
 
 ---
 
-### 6b. Spring 6 / Hibernate 6 Migration (next pending milestone)
+### 6b. Spring 6 / Hibernate 6 Migration — IN PROGRESS
 
-Create a feature branch from the current state:
+Branch `feature/spring6-hibernate6` (baseline tagged `v1.0-spring5-hibernate5`).
 
-```powershell
-git tag v1.0-spring5-hibernate5
-git checkout -b feature/spring6-hibernate6
-```
+| Step | Description | Commit | Status |
+|------|-------------|--------|--------|
+| 0+1 | POM bumps + `javax.*`→`jakarta.*` sweep | `625b642` | **DONE — build passes** |
+| 2 | Spring 6 API adaptations | — | pending |
+| 3 | Hibernate 6 query API | — | pending |
+| 4 | Tomcat 10 (Docker, `web.xml`, Cargo) | — | pending |
 
-Key migration changes:
-- Spring 5.3 → Spring 6.x (Jakarta EE namespace: `javax.*` → `jakarta.*`)
-- Hibernate 5.6 → Hibernate 6.x (updated query API, `@GeneratedValue` changes)
-- Tomcat 9 → Tomcat 10+ (required for Jakarta EE)
-- Maven module `javax.persistence-api` → `jakarta.persistence-api`
-- All `import javax.` statements → `import jakarta.` across every module
+**Key decisions made in Step 0+1:**
+- Spring 6 has no `org.springframework.orm.hibernate6` package — dropped `LocalSessionFactoryBean`
+  and `HibernateTransactionManager`, replaced with `LocalContainerEntityManagerFactoryBean` +
+  `JpaTransactionManager` + `HibernateJpaVendorAdapter`.
+- DAOs now use `@PersistenceContext EntityManager` + `entityManager.unwrap(Session.class)`
+  (instead of `@Autowired SessionFactory` + `getCurrentSession()`).
+- `session.save/update/delete` → `persist/merge/remove` (removed in Hibernate 6).
+- `PostgreSQL95Dialect` → `PostgreSQLDialect` (removed in Hibernate 6).
+- `org.hibernate:hibernate-core` → `org.hibernate.orm:hibernate-core` (groupId relocated).
 
-Document migration decisions in `docs/10-migration-spring6.md` (to be created).
-After successful migration, tag:
+See `docs/10-migration-spring6.md` for the full migration log with all gotchas documented.
 
-```powershell
-git tag v2.0-spring6-hibernate6
-```
-
-The two tags give a navigable before/after for the portfolio.
+After all steps pass, tag: `git tag v2.0-spring6-hibernate6`
 
 ---
 
