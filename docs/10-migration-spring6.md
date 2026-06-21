@@ -105,7 +105,48 @@ The fix is a single compiler flag rather than adding `value = "name"` to every a
 
 **Commit:** `<!-- hash -->`
 
-> *(To be filled.)*
+### Result: no code changes required
+
+Every Hibernate 6 API removal that applied to this codebase was a **compile-time** error
+that was already forced into the Step 0+1 commit. After a full review of all entity
+mappings, DAOs, and service-layer interaction patterns, the code was already written in a
+Hibernate 6-compatible style. Specific findings:
+
+**Entity mappings — no issues:**
+- `GenerationType.SEQUENCE` with an explicit `@SequenceGenerator(allocationSize = 1)` is
+  unchanged in Hibernate 6. No reliance on the changed `AUTO` default.
+- `@Enumerated(EnumType.STRING)` works identically.
+- `@ManyToOne(fetch = FetchType.LAZY)` proxy mechanism unchanged.
+- `LocalDate` / `LocalDateTime` — Hibernate 6 maps these natively; no custom `UserType`
+  was in use that could have broken.
+
+**HQL queries — no issues:**
+- All queries use `session().createQuery(hql, Class<T>)` which returns
+  `SelectionQuery<T>` in Hibernate 6. The `list()`, `setParameter()`,
+  `setFirstResult()`, `setMaxResults()`, and `uniqueResult()` methods are all present.
+- `FROM Booking b WHERE b.traveller.id = :travellerId` — Hibernate 6's SQM engine
+  recognises that `.id` on a `@ManyToOne` is a FK column value and optimises it without
+  issuing a JOIN (more efficient than Hibernate 5 in this case).
+- `WHERE b.status = :status` with a `BookingStatus` enum — Hibernate 6 infers string
+  binding from the `@Enumerated(EnumType.STRING)` mapping context. No explicit type hint
+  needed.
+- `SELECT COUNT(p) FROM TravellerProfile p WHERE p.email = :email` — returns `Long` as
+  before; `uniqueResult()` on a COUNT always produces exactly one row.
+- No legacy `org.hibernate.Criteria` API usage anywhere in the codebase.
+
+**Service-layer patterns — no issues:**
+- `ProfileServiceImpl.update()` and `BookingServiceImpl.cancel()` both rely on
+  Hibernate dirty-checking rather than calling `dao.update()` explicitly. This works via
+  `JpaTransactionManager`'s flush-on-commit the same way it did via `HibernateTransactionManager`.
+- `BookingServiceImpl.reserve()` uses `TransactionTemplate` with `PROPAGATION_REQUIRES_NEW`.
+  `JpaTransactionManager` suspends and resumes transactions correctly; the
+  `@PersistenceContext EntityManager` proxy automatically binds to the active transaction
+  in each phase.
+- `session().persist(booking)` followed immediately by `booking.getId()` — `GenerationType.SEQUENCE`
+  assigns the ID at `persist()` time (sequence is queried before the INSERT), not at flush
+  time. Behaviour identical to Hibernate 5.
+
+**`JdbcReportingDao` — completely unaffected:** pure JDBC, no Hibernate API.
 
 ---
 
@@ -180,6 +221,28 @@ pattern when you still want access to Hibernate's native `Session` API.
 is `org.hibernate.orm:hibernate-core`. Maven's relocation redirect still works but emits a
 warning; the root `pom.xml` and `mini-midoffice-persistence/pom.xml` were updated to the
 correct groupId.
+
+### G-9 · Spring 6.1 `-parameters` flag: silent compile, hard crash at runtime
+
+**Symptom:** the project compiles cleanly and the WAR deploys, but every request to an
+endpoint that has a `@RequestParam` or `@PathVariable` without an explicit `value` attribute
+throws at runtime:
+
+```
+java.lang.IllegalArgumentException: Name for argument of type [int] not specified,
+and parameter name information not available via reflection. Ensure that the compiler
+uses the '-parameters' flag.
+```
+
+**Cause:** Spring 6.1 removed `LocalVariableTableParameterNameDiscoverer`, which previously
+read parameter names from bytecode debug symbols (present when javac is invoked with `-g`).
+Spring 6 now relies exclusively on `StandardReflectionParameterNameDiscoverer`, which requires
+the `-parameters` javac flag to embed parameter names in the compiled `.class` file. Without
+that flag, Spring cannot resolve the parameter name and throws at the first HTTP request.
+
+**Fix:** add `<parameters>true</parameters>` to the `maven-compiler-plugin` configuration in
+the root `pom.xml`. One line; no changes to any `@RequestParam` or `@PathVariable` annotation
+needed.
 
 ---
 
