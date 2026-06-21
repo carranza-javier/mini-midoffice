@@ -3,9 +3,9 @@ package com.jcarranza.minimidoffice.persistence.hibernate;
 import com.jcarranza.minimidoffice.domain.enums.BookingStatus;
 import com.jcarranza.minimidoffice.domain.model.Booking;
 import com.jcarranza.minimidoffice.persistence.dao.BookingDao;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,11 +14,11 @@ import java.util.Optional;
 @Repository
 public class HibernateBookingDao implements BookingDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private Session session() {
-        return sessionFactory.getCurrentSession();
+        return entityManager.unwrap(Session.class);
     }
 
     @Override
@@ -49,11 +49,11 @@ public class HibernateBookingDao implements BookingDao {
 
     @Override
     public void save(Booking booking) {
-        session().save(booking);
+        session().persist(booking);
     }
 
     @Override
     public void update(Booking booking) {
-        session().update(booking);
+        session().merge(booking);
     }
 }

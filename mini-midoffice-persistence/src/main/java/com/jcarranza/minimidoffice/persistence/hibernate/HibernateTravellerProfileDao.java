@@ -2,9 +2,9 @@ package com.jcarranza.minimidoffice.persistence.hibernate;
 
 import com.jcarranza.minimidoffice.domain.model.TravellerProfile;
 import com.jcarranza.minimidoffice.persistence.dao.TravellerProfileDao;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,11 +13,11 @@ import java.util.Optional;
 @Repository
 public class HibernateTravellerProfileDao implements TravellerProfileDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private Session session() {
-        return sessionFactory.getCurrentSession();
+        return entityManager.unwrap(Session.class);
     }
 
     @Override
@@ -67,19 +67,19 @@ public class HibernateTravellerProfileDao implements TravellerProfileDao {
 
     @Override
     public void save(TravellerProfile profile) {
-        session().save(profile);
+        session().persist(profile);
     }
 
     @Override
     public void update(TravellerProfile profile) {
-        session().update(profile);
+        session().merge(profile);
     }
 
     @Override
     public void delete(Long id) {
         TravellerProfile profile = session().get(TravellerProfile.class, id);
         if (profile != null) {
-            session().delete(profile);
+            session().remove(profile);
         }
     }
 }
