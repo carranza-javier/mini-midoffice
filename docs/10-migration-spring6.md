@@ -152,7 +152,7 @@ Hibernate 6-compatible style. Specific findings:
 
 ## Step 4 — Tomcat 10
 
-**Commit:** `<!-- hash -->`
+**Commit:** `bc7ec79`
 
 ### What changed
 

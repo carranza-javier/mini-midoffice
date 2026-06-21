@@ -233,7 +233,7 @@ Branch `feature/spring6-hibernate6` (baseline tagged `v1.0-spring5-hibernate5`).
 | 0+1 | POM bumps + `javax.*`→`jakarta.*` sweep | `625b642` | **DONE — build passes** |
 | 2 | Spring 6 API adaptations (`-parameters` flag) | `b3fc89b` | **DONE** |
 | 3 | Hibernate 6 query API | `79341be` | **DONE — no code changes** |
-| 4 | Tomcat 10 (Docker, `web.xml`, Cargo) | `<!-- hash -->` | **DONE — smoke test passed** |
+| 4 | Tomcat 10 (Docker, `web.xml`, Cargo) | `bc7ec79` | **DONE — smoke test passed** |
 
 **Key decisions made in Step 0+1:**
 - Spring 6 has no `org.springframework.orm.hibernate6` package — dropped `LocalSessionFactoryBean`
