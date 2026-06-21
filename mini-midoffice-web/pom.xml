@@ -43,8 +43,8 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -86,7 +86,7 @@
     <build>
         <plugins>
             <!--
-                Cargo downloads Tomcat 9.0.89 automatically into ~/.m2/cargo/downloads/ (first time only).
+                Cargo downloads Tomcat 10.1.28 automatically into ~/.m2/cargo/downloads/ (first time only).
                 Development startup command:
                     mvn cargo:run -pl mini-midoffice-web -am -DskipTests
                 App available at http://localhost:8080/api/profiles
@@ -97,17 +97,17 @@
                 <version>1.10.14</version>
                 <configuration>
                     <container>
-                        <containerId>tomcat9x</containerId>
+                        <containerId>tomcat10x</containerId>
                         <type>installed</type>
                         <zipUrlInstaller>
-                            <url>https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.zip</url>
+                            <url>https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.28/bin/apache-tomcat-10.1.28.zip</url>
                             <downloadDir>${user.home}/.m2/cargo/downloads</downloadDir>
                             <extractDir>${user.home}/.m2/cargo/extracts</extractDir>
                         </zipUrlInstaller>
                     </container>
                     <configuration>
                         <type>standalone</type>
-                        <home>${project.build.directory}/tomcat9</home>
+                        <home>${project.build.directory}/tomcat10</home>
                         <properties>
                             <cargo.servlet.port>8080</cargo.servlet.port>
                             <cargo.logging>medium</cargo.logging>

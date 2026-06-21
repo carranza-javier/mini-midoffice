@@ -1,13 +1,15 @@
 package com.jcarranza.minimidoffice.persistence.config;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.hibernate.SessionFactory;
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -48,31 +50,28 @@ public class PersistenceConfig {
     }
 
     @Bean
-    public LocalSessionFactoryBean sessionFactory(DataSource dataSource) {
-        LocalSessionFactoryBean factory = new LocalSessionFactoryBean();
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
         factory.setPackagesToScan("com.jcarranza.minimidoffice.domain.model");
-        factory.setHibernateProperties(hibernateProperties());
+        factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        factory.setJpaProperties(hibernateProperties());
         return factory;
     }
 
     @Bean
-    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
-        return new HibernateTransactionManager(sessionFactory);
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+        return new JpaTransactionManager(emf);
     }
 
     private Properties hibernateProperties() {
         Properties p = new Properties();
-        p.setProperty("hibernate.dialect",
-                       "org.hibernate.dialect.PostgreSQL95Dialect");
+        p.setProperty("hibernate.dialect",         "org.hibernate.dialect.PostgreSQLDialect");
         p.setProperty("hibernate.hbm2ddl.auto",   "validate");
         p.setProperty("hibernate.show_sql",        "false");
         p.setProperty("hibernate.format_sql",      "false");
         p.setProperty("hibernate.jdbc.batch_size", "25");
         p.setProperty("hibernate.default_schema",  "public");
-        // Spring manages the Session lifecycle — required for getCurrentSession()
-        p.setProperty("hibernate.current_session_context_class",
-                       "org.springframework.orm.hibernate5.SpringSessionContext");
         return p;
     }
 }
