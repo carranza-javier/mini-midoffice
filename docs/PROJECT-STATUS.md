@@ -165,13 +165,13 @@ curl.exe -s http://localhost:8080/api/profiles
   (gitignored — never commit). See `sabre.properties.example` in the same directory for the
   required keys and format.
 - **Key cert dataset limitations:**
-  - BFM flight search (`/v4.1.0/shop/flights/fares`) only returns full segment data
+  - Flight search (`POST /v1/offers/flightSearch`) only returns full segment data
     (airline, flight number, times) for **US origins**: `JFK`, `ORD`, `MIA`.
-    European origins return pricing rows but no flight segments — this is a Sabre cert
+    European origins return an empty response — this is a Sabre cert dataset
     restriction, not a code bug.
-  - FlightCheck (`/v1/offers/flightCheck`) confirmed working for:
+  - FlightCheck (`POST /v1/offers/flightCheck`) confirmed working for:
     `LX|23|JFK|GVA|2026-07-18|19:25|2026-07-19|09:15|Y` (LX 23 JFK→GVA)
-  - Most BFM results fail FlightCheck with "No such flight" in cert — expected behaviour.
+  - Most flight search results fail FlightCheck with "No such flight" in cert — expected behaviour.
 
 For Sabre API raw responses and field mappings, see `docs/reference-sabre-api.md`.
 
