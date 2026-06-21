@@ -68,7 +68,7 @@ Steps 2, 3, and 4 remain as separate focused commits.
 
 ## Step 2 — Spring 6 API adaptations
 
-**Commit:** `<!-- hash -->`
+**Commit:** `b3fc89b`
 
 ### What changed
 
