@@ -24,7 +24,7 @@ Steps 0–4 were committed as isolated, always-green changesets. Ten gotchas are
 
 ## Sabre GDS Integration
 
-![Sabre BFM flight search with live results and Reserve buttons](docs/images/flight-search.png)
+![Sabre BFM flight search with live results and Reserve buttons](docs/images/flights-search.png)
 
 Live integration with the Sabre certification sandbox: OAuth2 client-credentials, flight search (`POST /v1/offers/flightSearch`), real-time FlightCheck price verification (`POST /v1/offers/flightCheck`), and booking reserve. Behind a port/adapter anti-corruption layer — the `GdsFlightSearchPort` and `GdsFlightCheckPort` interfaces mean Sabre can be swapped for Amadeus or Galileo without touching the service layer.
 
