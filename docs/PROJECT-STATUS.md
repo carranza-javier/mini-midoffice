@@ -20,6 +20,10 @@ All 9 development phases are complete on `main`. The Spring 6 / Hibernate 6 migr
   **https://github.com/carranza-javier/mini-midoffice** (public, branch `main`)
 - Spring 6.1.14 / Hibernate 6.4.4.Final / Tomcat 10.1 / Jakarta EE 10 migration complete
   (tagged `v2.0-spring6-hibernate6`; original stack preserved at `v1.0-spring5-hibernate5`)
+- `README.md` added as public entry point (migration headline, screenshots, stack, run instructions)
+- `docs/images/` — two screenshots committed: `flights-search.png`, `reports.png`
+- `mini-midoffice-persistence/src/main/resources/db/seed-data.sql` — demo seed with 11 travellers
+  and 51 bookings across all 12 months / 12 destinations / 3 providers
 
 **Migration steps (all done, merged into main):**
 - Step 0+1 (`625b642`): Spring 5→6, Hibernate 5→6, `javax.*`→`jakarta.*` sweep
@@ -72,9 +76,10 @@ Two-context pattern (mandatory for `@Transactional` to intercept correctly):
   `WebMvcConfig`. Contains: controllers, `@ControllerAdvice`. Inherits all Root beans.
 - Static resources and `index.html` served by Tomcat `DefaultServlet` (not DispatcherServlet).
 
-> **`main` vs migration branch:** on `main` the root context uses `LocalSessionFactoryBean` +
-> `HibernateTransactionManager`. On `feature/spring6-hibernate6` (after Step 0+1) it uses
-> `LocalContainerEntityManagerFactoryBean` + `JpaTransactionManager`.
+> **Current persistence config (post-migration `main`):** Root context uses
+> `LocalContainerEntityManagerFactoryBean` + `JpaTransactionManager` + `HibernateJpaVendorAdapter`.
+> The pre-migration state (`LocalSessionFactoryBean` + `HibernateTransactionManager`) is preserved
+> at tag `v1.0-spring5-hibernate5`.
 
 ### GDS Integration Pattern (Anti-Corruption Layer)
 
@@ -249,6 +254,14 @@ Baseline preserved at `v1.0-spring5-hibernate5`.
 - `PostgreSQL95Dialect` → `PostgreSQLDialect` (removed in Hibernate 6).
 - `org.hibernate:hibernate-core` → `org.hibernate.orm:hibernate-core` (groupId relocated).
 - End-to-end smoke test (reserve flow + reports) verified on `tomcat:10.1-jdk17`.
+
+### 6c. Post-Migration Finalization — DONE
+
+| Item | Commit | Notes |
+|------|--------|-------|
+| Demo seed data | `73384c1` | `seed-data.sql` — 11 travellers, 51 bookings, all 12 months / 12 destinations / 3 providers |
+| README.md | `fc71374` | Public entry point — migration headline, screenshots, stack, run commands |
+| Screenshots | `789ccf4` | `docs/images/flights-search.png`, `docs/images/reports.png` |
 
 ---
 
