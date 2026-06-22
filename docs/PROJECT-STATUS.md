@@ -125,8 +125,8 @@ docker run -d --name mini-midoffice-db -p 5432:5432 `
   postgres:16
 ```
 
-Then connect and run the DDL from `docs/02-data-model.md` (CREATE TABLE traveller_profile,
-booking — schema is not auto-created).
+Then apply the schema per **HOW-TO-RUN.md — section 0**
+(`V1__create_schema.sql` then `V2__remove_searched_status.sql`; schema is not auto-created).
 
 ### Build
 

@@ -205,6 +205,9 @@ Covered by `idx_booking_traveller`.
 
 ## 8. PostgreSQL Schema — Design Decisions
 
+> Runnable DDL: `mini-midoffice-persistence/src/main/resources/db/V1__create_schema.sql` and
+> `V2__remove_searched_status.sql`. Apply procedure: **HOW-TO-RUN.md — section 0**.
+
 | Decision | Alternative | Reason |
 |---|---|---|
 | Explicit `SEQUENCE` + `DEFAULT nextval()` | `SERIAL` / `BIGSERIAL` | Explicit control of the sequence name for Hibernate's `@SequenceGenerator`; no implicit PG magic |

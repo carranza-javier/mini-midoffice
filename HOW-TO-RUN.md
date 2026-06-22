@@ -1,5 +1,9 @@
 ﻿# JCarranza Mini-Midoffice — How to Run & Test
 
+> **Platform note:** Commands are written for PowerShell on Windows. On Linux/macOS: replace
+> backtick line continuations (`` ` ``) with backslash (`\`), use `curl` instead of `curl.exe`,
+> and use forward slashes in paths.
+
 ## Prerequisites
 
 | Tool | Version | Notes |
@@ -14,6 +18,47 @@ docker ps --filter "name=mini-midoffice-db"
 If it is not running:
 ```powershell
 docker start mini-midoffice-db
+```
+
+---
+
+## 0. First-time database setup
+
+Do this once per machine. Skip if `mini-midoffice-db` already exists and the schema has been applied.
+
+### Create the PostgreSQL container
+
+```powershell
+docker run -d --name mini-midoffice-db -p 5432:5432 `
+  -e POSTGRES_PASSWORD=miniumbrella -e POSTGRES_DB=miniumbrella `
+  postgres:16
+```
+
+### Apply the schema
+
+Wait a few seconds for Postgres to start, then apply the two migration files in order. Run each
+command from the repo root:
+
+```powershell
+Get-Content mini-midoffice-persistence\src\main\resources\db\V1__create_schema.sql `
+  | docker exec -i mini-midoffice-db psql -U postgres -d miniumbrella
+
+Get-Content mini-midoffice-persistence\src\main\resources\db\V2__remove_searched_status.sql `
+  | docker exec -i mini-midoffice-db psql -U postgres -d miniumbrella
+```
+
+`V1` creates the sequences, `traveller_profile`, and `booking` tables with all indexes and
+constraints. `V2` updates the `chk_booking_status` check constraint — the reserve flow goes
+directly to `RESERVED`, so `SEARCHED` is no longer a valid stored status.
+
+### Load seed data (optional)
+
+Loads 11 traveller profiles and 51 bookings across all 12 months, 12 destinations, and 3 providers.
+Useful for exercising the Reports screen out of the box.
+
+```powershell
+Get-Content mini-midoffice-persistence\src\main\resources\db\seed-data.sql `
+  | docker exec -i mini-midoffice-db psql -U postgres -d miniumbrella
 ```
 
 ---
