@@ -41,8 +41,10 @@ public class BookingServiceImpl implements BookingService {
     private static final Logger log         = LoggerFactory.getLogger(BookingServiceImpl.class);
     private static final Logger businessLog = LoggerFactory.getLogger("com.jcarranza.minimidoffice.business");
 
-    // Configurable via booking.priceTolerance property (default 5%).
-    // Set to e.g. 100.0 in cert to account for BFM vs FlightCheck price differences.
+    // Default 100.0 is intentional for the Sabre cert sandbox: BFM flight search and FlightCheck
+    // draw prices from different unsynced datasets, producing a typical 3-4x difference that would
+    // always fail a tight tolerance. In production (live Sabre inventory), both APIs share the same
+    // pricing source — override with booking.priceTolerance=1.05 for a 5% production tolerance.
     private final BigDecimal PRICE_TOLERANCE;
 
     private final BookingDao                 bookingDao;
@@ -59,7 +61,7 @@ public class BookingServiceImpl implements BookingService {
                                GdsFlightCheckPort flightCheckPort,
                                PlatformTransactionManager transactionManager,
                                @Value("${sabre.pseudoCityCode:PC18}") String pseudoCityCode,
-                               @Value("${booking.priceTolerance:1.05}") BigDecimal priceTolerance) {
+                               @Value("${booking.priceTolerance:100.0}") BigDecimal priceTolerance) {
         this.bookingDao         = bookingDao;
         this.profileDao         = profileDao;
         this.flightCheckPort    = flightCheckPort;

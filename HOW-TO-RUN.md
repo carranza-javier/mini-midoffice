@@ -176,7 +176,9 @@ No prior search step needed — just pass the `flightKey` from any search result
 curl.exe -s "http://localhost:8080/api/flights/search?origin=JFK&fromDate=2026-07-17&toDate=2026-07-20&currencyCode=USD"
 
 # Step 2 — reserve (FlightCheck → persist RESERVED in one call)
-$body = '{"flightKey":"LX|23|JFK|GVA|2026-07-18|19:25|2026-07-19|09:15|Y","travellerId":1,"searchedPrice":1121.93,"currencyCode":"USD"}'
+# searchedPrice is your pre-check estimate; confirmedPrice is returned by FlightCheck and will
+# typically differ in the cert sandbox — BFM and FlightCheck draw from different pricing datasets.
+$body = '{"flightKey":"LX|23|JFK|GVA|2026-07-18|19:25|2026-07-19|09:15|Y","travellerId":1,"searchedPrice":500.00,"currencyCode":"USD"}'
 Set-Content -Path "$env:TEMP\reserve.json" -Value $body -Encoding utf8
 curl.exe -s -X POST http://localhost:8080/api/bookings `
   -H "Content-Type: application/json" `
