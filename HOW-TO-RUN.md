@@ -97,12 +97,6 @@ docker logs mini-midoffice-app --tail 5
 # Should end with: Server startup in [NNNN] milliseconds
 ```
 
-### Stop
-```powershell
-docker stop mini-midoffice-app
-docker rm mini-midoffice-app
-```
-
 ---
 
 ## 3. Test the API
@@ -252,3 +246,16 @@ docker logs -f mini-midoffice-app
 # Request log format: [REQUEST] METHOD /path → STATUS (N ms)
 docker logs mini-midoffice-app 2>&1 | Select-String "\[REQUEST\]"
 ```
+
+---
+
+## 6. Stopping and restarting
+
+```powershell
+docker stop mini-midoffice-app
+docker rm mini-midoffice-app
+```
+
+To restart after a rebuild, re-run the `docker run` command from section 2. The PostgreSQL
+container (`mini-midoffice-db`) keeps its data between restarts — only `mini-midoffice-app`
+needs to be removed and recreated.
